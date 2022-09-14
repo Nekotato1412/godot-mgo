@@ -1,0 +1,11 @@
+{
+	"title": "Movement Mechanics",
+	"category": 3,
+	"assigned": 0,
+	"timestamp": 1662994354,
+	"hash": "f1938d0a4cbbffcc7308f9ddb7a548aaf669e065b0d190064dbbef956e35f3bb",
+	"description": "Add mechanics that allows the player to move in 8 normalized directions with the keyboard.",
+	"todos": [
+
+	]
+}

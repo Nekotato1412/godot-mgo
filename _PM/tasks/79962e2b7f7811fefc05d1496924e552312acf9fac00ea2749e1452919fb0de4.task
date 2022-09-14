@@ -1,0 +1,11 @@
+{
+	"title": "Setup GUI Styles",
+	"category": 0,
+	"assigned": 0,
+	"timestamp": 1662994218,
+	"hash": "79962e2b7f7811fefc05d1496924e552312acf9fac00ea2749e1452919fb0de4",
+	"description": "Add styles for the GUIs that can be reused as part of the game.",
+	"todos": [
+
+	]
+}

@@ -1,0 +1,62 @@
+[gd_scene load_steps=3 format=2]
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends Control
+
+
+func _ready():
+	$AnimationPlayer.play(\"Loading dots\")
+"
+
+[sub_resource type="Animation" id=1]
+resource_name = "Loading dots"
+length = 1.5
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("Connecting:text")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.5, 1 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 1,
+"values": [ "Connecting", "Connecting.", "Connecting.." ]
+}
+
+[node name="ConnectingStatus" type="Control"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -20.0
+margin_top = -20.0
+margin_right = 20.0
+margin_bottom = 20.0
+script = SubResource( 2 )
+
+[node name="Panel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -78.0
+margin_top = -20.0
+margin_right = 78.0
+margin_bottom = 20.0
+
+[node name="Connecting" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -39.5
+margin_top = -7.0
+margin_right = 39.5
+margin_bottom = 7.0
+text = "Connecting.."
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+reset_on_save = false
+"anims/Loading dots" = SubResource( 1 )
