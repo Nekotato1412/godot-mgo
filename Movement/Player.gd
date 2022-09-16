@@ -9,7 +9,7 @@ onready var sprite = $Sprite
 onready var Game = get_node("/root/Game")
 
 func set_sprite(to: String):
-	var new_sprite = load(Game.SPRITE_PATH + "to")
+	var new_sprite = load(Game.SPRITE_PATH + to)
 	sprite.set_sprite_frames(new_sprite)
 
 func _physics_process(_delta):
@@ -29,13 +29,21 @@ func _physics_process(_delta):
 	
 	if velocity.length() > 0:
 		sprite.play("walk_" + Game.direction_strings[direction])
+		if Game.env == Game.Env.HOST:
+			Game.rpc_unreliable("guest_update_puppet_anim", get_tree().get_network_unique_id(), "walk_" + Game.direction_strings[direction], sprite.speed_scale)
+		else:
+			Game.rpc_unreliable_id(1, "player_anim_updated", "walk_" + Game.direction_strings[direction], sprite.speed_scale)
 	else:
 		sprite.play("look_" + Game.direction_strings[direction])
+		if Game.env == Game.Env.HOST:
+			Game.rpc_unreliable("guest_update_puppet_anim", get_tree().get_network_unique_id(), "look_" + Game.direction_strings[direction], sprite.speed_scale)
+		else:
+			Game.rpc_unreliable_id(1, "player_anim_updated", "look_" + Game.direction_strings[direction], sprite.speed_scale)
 
 	# warning-ignore:return_value_discarded
 	move_and_slide(velocity)
 
-	if get_tree().is_network_server():
+	if Game.env == Game.Env.HOST:
 		Game.rpc_unreliable("guest_update_puppet_pos", get_tree().get_network_unique_id(), self.global_position)
 	else:
 		Game.rpc_unreliable_id(1, "player_pos_updated", self.global_position)

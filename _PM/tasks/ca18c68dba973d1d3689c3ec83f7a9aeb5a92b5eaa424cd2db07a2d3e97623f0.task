@@ -1,0 +1,11 @@
+{
+	"title": "Chat Function",
+	"category": 1,
+	"assigned": 0,
+	"timestamp": 1663361963,
+	"hash": "ca18c68dba973d1d3689c3ec83f7a9aeb5a92b5eaa424cd2db07a2d3e97623f0",
+	"description": "Add a basic chat function to the game.",
+	"todos": [
+
+	]
+}

@@ -4,7 +4,7 @@
 	"assigned": 0,
 	"timestamp": 1662994655,
 	"hash": "10e6a94d94b902fa99db712602109169f2977d95989b946ff6f7250987e3e512",
-	"description": "Add a sprite selection screen and a system to ensure players cannot select the same sprite.",
+	"description": "Add a sprite selection screen and a system to ensure players cannot select the same sprite. Also add the ability to set your display name.",
 	"todos": [
 
 	]

@@ -6,7 +6,7 @@
 
 [sub_resource type="RectangleShape2D" id=1]
 
-[node name="Dummy" type="KinematicBody2D" groups=["player"]]
+[node name="Dummy" type="KinematicBody2D" groups=["player", "puppet"]]
 collision_layer = 2
 script = ExtResource( 3 )
 

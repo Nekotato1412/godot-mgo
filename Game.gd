@@ -39,27 +39,27 @@ var env
 var connected_players : Array = []
 
 func set_screen(screen: String):
-	if self.current_screen != null:
-		self.current_screen.hide()
-		self.current_screen.queue_free()
-
+	close_current_screen()
 	var n = load(SCREEN_PATH + screen).instance()
 	add_child(n)
 	self.current_screen = n
 
 func close_current_screen():
-	if self.current_screen:
+	if is_instance_valid(current_screen):
 		self.current_screen.hide()
 		self.current_screen.queue_free()
 
 func set_map(map: String):
-	if self.current_map:
-		self.current_map.hide()
-		self.current_map.queue_free()
+	free_current_map()
 	var n = load(MAP_PATH + map).instance()
 	add_child(n)
 	self.current_map = n
 	self.current_map_string = map
+
+func free_current_map():
+	if is_instance_valid(current_map):
+		self.current_map.hide()
+		self.current_map.queue_free()
 
 remote func set_guest_map(map: String):
 	if get_tree().get_rpc_sender_id() == 1:
@@ -204,6 +204,22 @@ func update_puppet_pos(id: int, pos: Vector2):
 		if child.name == str(id):
 			child.global_position = pos
 
+func update_puppet_anim(id: int, anim: String, speed):
+	for child in current_map.get_children():
+		if child.name == str(id):
+			var sprite = child.get_node("Sprite")
+			sprite.speed_scale = speed
+			sprite.play(anim)
+remote func guest_update_puppet_anim(id: int, anim: String, speed):
+	update_puppet_anim(id, anim, speed)
+
+master func player_anim_updated(anim: String, speed):
+	var player_id = get_tree().get_rpc_sender_id()
+	for player in get_tree().get_network_connected_peers():
+		if player != player_id:
+			rpc_id(player, "guest_update_puppet_anim", player_id, anim, speed)
+	update_puppet_anim(player_id, anim, speed)
+
 master func player_pos_updated(pos: Vector2):
 	var puppet_id = get_tree().get_rpc_sender_id()
 	for player in get_tree().get_network_connected_peers():
@@ -228,4 +244,8 @@ func _on_connection_failed():
 	self.set_screen("Network/ConnectionFailed.tscn")
 
 func _on_server_disconnected():
+	for child in current_map.get_children():
+		if child.is_in_group("puppet") or child.is_in_group("player"):
+			child.queue_free()
+	self.free_current_map()
 	self.set_screen("Network/TimedOut.tscn")
