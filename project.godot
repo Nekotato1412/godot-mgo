@@ -9,18 +9,12 @@
 config_version=4
 
 _global_script_classes=[ {
-"base": "",
-"class": "GitAPI",
-"language": "NativeScript",
-"path": "res://addons/godot-git-plugin/git_api.gdns"
-}, {
 "base": "Node",
 "class": "PlayerData",
 "language": "GDScript",
 "path": "res://Movement/PlayerData.gd"
 } ]
 _global_script_class_icons={
-"GitAPI": "",
 "PlayerData": ""
 }
 
@@ -51,7 +45,7 @@ enabled=PoolStringArray( "res://addons/NbPM/plugin.cfg" )
 
 [gdnative]
 
-singletons=[ "res://addons/godot-git-plugin/git_api.gdnlib" ]
+singletons=[  ]
 
 [global]
 

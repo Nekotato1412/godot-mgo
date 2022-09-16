@@ -1,19 +1,36 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://resources/sprite/red_ball.tres" type="SpriteFrames" id=1]
 [ext_resource path="res://Movement/PlayerData.gd" type="Script" id=2]
+[ext_resource path="res://Movement/PlayerOther.gd" type="Script" id=3]
 
 [sub_resource type="RectangleShape2D" id=1]
 
 [node name="Dummy" type="KinematicBody2D" groups=["player"]]
 collision_layer = 2
+script = ExtResource( 3 )
+
+[node name="name" type="Label" parent="."]
+anchor_right = 1.0
+margin_left = -10.0
+margin_top = -24.0
+margin_right = 2.0
+margin_bottom = -10.0
+align = 1
+valign = 1
 
 [node name="Shape" type="CollisionShape2D" parent="."]
 shape = SubResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Sprite" type="AnimatedSprite" parent="."]
 frames = ExtResource( 1 )
 animation = "look_down"
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Data" type="Node" parent="."]
 script = ExtResource( 2 )

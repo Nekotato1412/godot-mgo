@@ -8,7 +8,10 @@ var direction = Vector2.DOWN
 onready var sprite = $Sprite
 onready var Game = get_node("/root/Game")
 
-# TODO: Host-sided Movement Code
+func set_sprite(to: String):
+	var new_sprite = load(Game.SPRITE_PATH + "to")
+	sprite.set_sprite_frames(new_sprite)
+
 func _physics_process(_delta):
 	velocity = Vector2.ZERO
 	
@@ -29,7 +32,12 @@ func _physics_process(_delta):
 	else:
 		sprite.play("look_" + Game.direction_strings[direction])
 
+	# warning-ignore:return_value_discarded
 	move_and_slide(velocity)
-# TODO: Network-sided Movement Code
+
+	if get_tree().is_network_server():
+		Game.rpc_unreliable("guest_update_puppet_pos", get_tree().get_network_unique_id(), self.global_position)
+	else:
+		Game.rpc_unreliable_id(1, "player_pos_updated", self.global_position)
 
 # TODO: Network Animation Syncing

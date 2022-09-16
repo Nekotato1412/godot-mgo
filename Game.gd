@@ -34,10 +34,12 @@ var direction_strings = {
 }
 var current_screen
 var current_map
+var current_map_string : String
 var env
+var connected_players : Array = []
 
 func set_screen(screen: String):
-	if self.current_screen:
+	if self.current_screen != null:
 		self.current_screen.hide()
 		self.current_screen.queue_free()
 
@@ -57,6 +59,48 @@ func set_map(map: String):
 	var n = load(MAP_PATH + map).instance()
 	add_child(n)
 	self.current_map = n
+	self.current_map_string = map
+
+remote func set_guest_map(map: String):
+	if get_tree().get_rpc_sender_id() == 1:
+		set_map(map)
+
+remote func close_guest_screen():
+	if get_tree().get_rpc_sender_id() == 1:
+		close_current_screen()
+
+remote func register_connected_players(network_list):
+	if get_tree().get_rpc_sender_id() != 1: return
+	for peer in network_list:
+		connected_players.append(peer)
+		print(connected_players)
+
+remote func register_player(player):
+	# If the player is not me
+	if player != get_tree().get_network_unique_id():
+		connected_players.append(player)
+		print(connected_players)
+
+remote func deregister_guest_player(player):
+	if get_tree().get_rpc_sender_id() == 1:
+		deregister_player(player)
+
+func deregister_player(player):
+	print(str(player) + " disconnected.")
+	connected_players.erase(player)
+
+func spawn_self():
+	var player = preload("res://Movement/Player.tscn").instance()
+	var spawnpoint = Vector2.ZERO
+	for child in current_map.get_children():
+		if child.is_in_group("spawn"):
+			spawnpoint = child.global_position
+	player.global_position = spawnpoint
+	current_map.add_child(player)
+
+remote func spawn_guest_player():
+	if get_tree().get_rpc_sender_id() == 1:
+		spawn_self()
 
 func _ready():
 	# When the game first starts
@@ -106,9 +150,76 @@ func destroy_network():
 
 func _on_peer_connected(peer):
 	print(str(peer) + " connected.")
+	rpc_id(peer, "close_guest_screen")
+	rpc_id(peer, "set_guest_map", current_map_string)
+	var netlist = []
+	for player in get_tree().get_network_connected_peers():
+		if player != peer:
+			netlist.append(player)
+	# Register Host to Guest
+	netlist.append(get_tree().get_network_unique_id())
+	# Register other players
+	rpc_id(peer, "register_connected_players", netlist)
+	
+	# Let other players know of new player
+	rpc("register_player", peer)
+	# Make other players spawn the new player
+	rpc("guest_spawn_puppet", peer, str(peer)) # TODO: Add Names
+	# Register Guest to Host
+	connected_players.append(peer)
+	# Make Guest spawn their controllable player
+	rpc_id(peer, "spawn_guest_player")
+	# Make Guest spawn other players as puppets
+	rpc_id(peer, "guest_spawn_puppets")
+	# Spawn Player as Puppet
+	spawn_puppet(peer, str(peer)) # TODO: Add Names
+
+func spawn_puppet(id, name):
+	var new_puppet = preload("res://Movement/PlayerOther.tscn").instance()
+	new_puppet.set_displayname(name)
+	new_puppet.set_name(str(id))
+	# Position shouldn't matter
+	current_map.add_child(new_puppet)
+
+func spawn_puppets():
+	for member in connected_players:
+		spawn_puppet(member, str(member)) # TODO: Name Data
+
+remote func guest_spawn_puppet(id, name):
+	spawn_puppet(id, name)
+
+remote func guest_spawn_puppets():
+	spawn_puppets()
+
+func destroy_puppet(id: int):
+	for child in current_map.get_children():
+		if child.name == str(id):
+			child.free()
+
+remote func guest_destroy_puppet(id: int):
+	destroy_puppet(id)
+
+func update_puppet_pos(id: int, pos: Vector2):
+	for child in current_map.get_children():
+		if child.name == str(id):
+			child.global_position = pos
+
+master func player_pos_updated(pos: Vector2):
+	var puppet_id = get_tree().get_rpc_sender_id()
+	for player in get_tree().get_network_connected_peers():
+		if player != puppet_id:
+			rpc_id(player, "guest_update_puppet_pos", puppet_id, pos)
+	update_puppet_pos(puppet_id, pos)
+
+remote func guest_update_puppet_pos(id: int, pos: Vector2):
+	update_puppet_pos(id, pos)
 
 func _on_peer_disconnected(peer):
 	print(str(peer) + " disconnected.")
+	rpc("deregister_guest_player", peer)
+	rpc("guest_destroy_puppet", peer)
+	deregister_player(peer)
+	destroy_puppet(peer)
 
 func _on_connected_to_server():
 	self.set_screen("Network/ConnectionSucceeded.tscn")
