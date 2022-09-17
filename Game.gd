@@ -2,9 +2,6 @@ extends Node
 # Handles Data, Netcode, and State management.
 # Includes functions
 
-# TODO: Host to Guest Syncing
-# TODO: Guest to Host Syncing
-# TODO: Error handling/Panic Messages
 # TODO: Host Environment Data saving & loading
 # TODO: UUID Generation
 
@@ -116,9 +113,9 @@ func create_network(port: int, maxPlayers: int):
 		var host_peer = NetworkedMultiplayerENet.new()
 		host_peer.create_server(port, maxPlayers - 1)
 		get_tree().network_peer = host_peer
-# warning-ignore:return_value_discarded
+		# warning-ignore:return_value_discarded
 		get_tree().connect("network_peer_connected", self, "_on_peer_connected")
-# warning-ignore:return_value_discarded
+		# warning-ignore:return_value_discarded
 		get_tree().connect("network_peer_disconnected", self, "_on_peer_disconnected")
 	else:
 		print("Dirty hacker.")
@@ -128,11 +125,11 @@ func join_network(ip, port: int):
 		var guest_peer = NetworkedMultiplayerENet.new()
 		guest_peer.create_client(ip, port)
 		get_tree().network_peer = guest_peer
-# warning-ignore:return_value_discarded
+		# warning-ignore:return_value_discarded
 		get_tree().connect("connected_to_server", self, "_on_connected_to_server")
-# warning-ignore:return_value_discarded
+		# warning-ignore:return_value_discarded
 		get_tree().connect("connection_failed", self, "_on_connection_failed")
-# warning-ignore:return_value_discarded
+		# warning-ignore:return_value_discarded
 		get_tree().connect("server_disconnected", self, "_on_server_disconnected")
 	else:
 		print("Wut?")
@@ -163,8 +160,11 @@ func _on_peer_connected(peer):
 	
 	# Let other players know of new player
 	rpc("register_player", peer)
+	
+	# TODO: Refactor and make way for character selection.
 	# Make other players spawn the new player
-	rpc("guest_spawn_puppet", peer, str(peer)) # TODO: Add Names
+	# TODO: Add Names
+	rpc("guest_spawn_puppet", peer, str(peer)) 
 	# Register Guest to Host
 	connected_players.append(peer)
 	# Make Guest spawn their controllable player
@@ -172,7 +172,8 @@ func _on_peer_connected(peer):
 	# Make Guest spawn other players as puppets
 	rpc_id(peer, "guest_spawn_puppets")
 	# Spawn Player as Puppet
-	spawn_puppet(peer, str(peer)) # TODO: Add Names
+	# TODO: Add Names
+	spawn_puppet(peer, str(peer))
 
 func spawn_puppet(id, name):
 	var new_puppet = preload("res://Movement/PlayerOther.tscn").instance()
@@ -183,7 +184,8 @@ func spawn_puppet(id, name):
 
 func spawn_puppets():
 	for member in connected_players:
-		spawn_puppet(member, str(member)) # TODO: Name Data
+		# TODO: Add Names
+		spawn_puppet(member, str(member)) 
 
 remote func guest_spawn_puppet(id, name):
 	spawn_puppet(id, name)

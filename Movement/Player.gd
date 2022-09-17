@@ -47,5 +47,3 @@ func _physics_process(_delta):
 		Game.rpc_unreliable("guest_update_puppet_pos", get_tree().get_network_unique_id(), self.global_position)
 	else:
 		Game.rpc_unreliable_id(1, "player_pos_updated", self.global_position)
-
-# TODO: Network Animation Syncing

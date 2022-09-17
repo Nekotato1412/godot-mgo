@@ -50,6 +50,8 @@ singletons=[  ]
 [global]
 
 environment=false
+nearest=false
+scaling=false
 
 [gui]
 
